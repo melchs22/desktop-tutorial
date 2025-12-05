@@ -1,0 +1,79 @@
+{% extends "documents_app/base.html" %}
+
+{% block title %}Document Viewer{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+<div class="alert alert-info text-center">
+    <i class="bi bi-info-circle"></i>
+    <strong>Public Viewer Access:</strong> No login required. Enter passport number or name to view documents.
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0 text-center">
+                    <i class="bi bi-search"></i> Search Client Documents
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="search" class="form-label">Enter Passport Number or Client Name</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="e.g., AB123456 or John Smith" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+                
+                {% if search_query %}
+                <hr>
+                <h5>Search Results for "{{ search_query }}"</h5>
+                
+                {% if clients %}
+                    {% for client in clients %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h6>{{ client.name }}</h6>
+                            <p class="mb-1"><strong>Passport:</strong> {{ client.passport_number }}</p>
+                            <p class="mb-1"><strong>Nationality:</strong> {{ client.nationality }}</p>
+                            <a href="{% url 'document_viewer' client.passport_number %}" 
+                               class="btn btn-sm btn-primary mt-2">
+                                <i class="bi bi-eye"></i> View Documents
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        No clients found matching "{{ search_query }}"
+                    </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="text-center mt-3">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-speedometer2"></i> Back to Dashboard
+            </a>
+        </div>
+        {% else %}
+        <div class="text-center mt-3">
+            <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                <i class="bi bi-lock"></i> Staff Login
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

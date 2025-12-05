@@ -1,0 +1,82 @@
+{% extends "documents_app/base.html" %}
+
+{% block title %}Quick Add Client with PDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0 text-center">
+                        <i class="bi bi-lightning-charge"></i> Quick Add Client with Complete PDF
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Use this form for clients who already have complete PDF documents.</strong>
+                        <p class="mb-0 mt-2">This skips the individual document upload process and directly adds the client with their complete PDF package.</p>
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name *</label>
+                                    {{ form.name }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Passport Number *</label>
+                                    {{ form.passport_number }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">NIN (Optional)</label>
+                                    {{ form.nin }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">District (Optional)</label>
+                                    {{ form.district }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Complete PDF Document *</label>
+                            {{ form.complete_pdf }}
+                            <div class="form-text">
+                                Upload the complete PDF package containing all client documents
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Additional Notes (Optional)</label>
+                            {{ form.additional_notes }}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Save Client with PDF
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

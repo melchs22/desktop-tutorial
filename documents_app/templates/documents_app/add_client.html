@@ -1,0 +1,51 @@
+{% extends "documents_app/base.html" %}
+
+{% block title %}Add New Client{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0 text-center">
+                    <i class="bi bi-person-plus"></i> Add New Client
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Full Name *</label>
+                        {{ form.name }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Passport Number *</label>
+                        {{ form.passport_number }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">NIN (Optional)</label>
+                        {{ form.nin }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">District (Optional)</label>
+                        {{ form.district }}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Save & Upload Documents
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,331 @@
+{% extends "documents_app/base.html" %}
+
+{% block title %}{{ client.name }} - Client Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Client Header -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="bi bi-person-badge"></i> {{ client.name }}
+            </h4>
+            <div>
+                <a href="{% url 'upload_documents' client.id %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-plus-circle"></i> Add More
+                </a>
+                {% if has_comprehensive_pdf %}
+                <a href="{% url 'download_comprehensive_pdf' client.id %}" class="btn btn-success btn-sm">
+                    <i class="bi bi-file-pdf"></i> Complete PDF
+                </a>
+                {% endif %}
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Client Info -->
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="bi bi-info-circle"></i> Client Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr><th>Name:</th><td class="fw-bold">{{ client.name }}</td></tr>
+                                <tr><th>Passport:</th><td class="text-primary fw-bold">{{ client.passport_number }}</td></tr>
+                                {% if client.nin %}
+                                <tr><th>NIN:</th><td>{{ client.nin }}</td></tr>
+                                {% endif %}
+                                {% if client.district %}
+                                <tr><th>District:</th><td>{{ client.district }}</td></tr>
+                                {% endif %}
+                                <tr><th>Created:</th><td>{{ client.created_at|date:"M d, Y H:i" }}</td></tr>
+                                <tr><th>Created By:</th><td>{{ client.created_by.username|default:"System" }}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Passport Photo -->
+                <div class="col-md-8">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="bi bi-camera"></i> Passport Photo Preview</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if first_passport_photo %}
+                                <div class="mb-3">
+                                    <!-- Show PDF icon with link to download -->
+                                    <a href="{{ first_passport_photo.get_preview_url }}" target="_blank" class="text-decoration-none">
+                                        <div class="border rounded p-4 bg-light">
+                                            <i class="bi bi-file-pdf text-danger" style="font-size: 5rem;"></i>
+                                            <p class="mt-2">Passport Photo PDF</p>
+                                            <small class="text-muted">Click to view/download</small>
+                                        </div>
+                                    </a>
+                                </div>
+                                <a href="{% url 'download_file' first_passport_photo.id %}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-download"></i> Download PDF
+                                </a>
+                            {% else %}
+                                <div class="text-muted py-5">
+                                    <i class="bi bi-camera-off" style="font-size: 3rem;"></i>
+                                    <p class="mt-2">No passport photo uploaded</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- All Passport Photos -->
+    {% if passport_photos %}
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-images"></i> All Passport Photos (PDF Format)
+                <span class="badge bg-light text-dark">{{ passport_photos.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for doc in passport_photos %}
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card border h-100">
+                        <div class="card-body text-center p-3 d-flex flex-column">
+                            <!-- PDF Preview -->
+                            <div class="mb-2 flex-grow-1">
+                                <a href="{{ doc.get_preview_url }}" target="_blank" class="text-decoration-none">
+                                    <div class="border rounded p-3 bg-light h-100 d-flex flex-column justify-content-center">
+                                        <i class="bi bi-file-pdf text-danger" style="font-size: 2.5rem;"></i>
+                                        <h6 class="mt-2">Passport Photo {{ forloop.counter }}</h6>
+                                        <small class="text-muted d-block">PDF Document</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mt-auto">
+                                <small class="text-muted d-block">{{ doc.uploaded_at|date:"M d, Y" }}</small>
+                                <div class="mt-2">
+                                    <a href="{% url 'download_file' doc.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                    <a href="{{ doc.get_preview_url }}" target="_blank"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Passport Book Pages -->
+    {% if passport_book %}
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="bi bi-passport"></i> Passport Book Pages (PDF Format)
+                <span class="badge bg-light text-dark">{{ passport_book.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for doc in passport_book %}
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card border h-100">
+                        <div class="card-body text-center p-3 d-flex flex-column">
+                            <div class="mb-2 flex-grow-1">
+                                <a href="{{ doc.get_preview_url }}" target="_blank" class="text-decoration-none">
+                                    <div class="border rounded p-3 bg-light h-100 d-flex flex-column justify-content-center">
+                                        <i class="bi bi-passport text-warning" style="font-size: 2.5rem;"></i>
+                                        <h6 class="mt-2">Page {{ forloop.counter }}</h6>
+                                        <small class="text-muted d-block">PDF Document</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mt-auto">
+                                <small class="text-muted d-block">{{ doc.uploaded_at|date:"M d, Y" }}</small>
+                                <div class="mt-2">
+                                    <a href="{% url 'download_file' doc.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                    <a href="{{ doc.get_preview_url }}" target="_blank"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Yellow Fever Certificates -->
+    {% if yellow_fever %}
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-file-medical"></i> Yellow Fever Certificates (PDF Format)
+                <span class="badge bg-light text-dark">{{ yellow_fever.count }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for doc in yellow_fever %}
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card border h-100">
+                        <div class="card-body text-center p-3 d-flex flex-column">
+                            <div class="mb-2 flex-grow-1">
+                                <a href="{{ doc.get_preview_url }}" target="_blank" class="text-decoration-none">
+                                    <div class="border rounded p-3 bg-light h-100 d-flex flex-column justify-content-center">
+                                        <i class="bi bi-file-medical text-danger" style="font-size: 2.5rem;"></i>
+                                        <h6 class="mt-2">Certificate {{ forloop.counter }}</h6>
+                                        <small class="text-muted d-block">PDF Document</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mt-auto">
+                                <small class="text-muted d-block">{{ doc.uploaded_at|date:"M d, Y" }}</small>
+                                <div class="mt-2">
+                                    <a href="{% url 'download_file' doc.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                    <a href="{{ doc.get_preview_url }}" target="_blank"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- All PDF Files in Folder -->
+    {% if pdf_files %}
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-folder"></i> All PDF Files in Folder
+                <span class="badge bg-light text-dark">{{ pdf_files|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in pdf_files %}
+                        <tr>
+                            <td>
+                                <i class="bi bi-file-pdf text-danger"></i>
+                                {{ file }}
+                            </td>
+                            <td>
+                                {% if 'passport_photo' in file %}
+                                <span class="badge bg-info">Passport Photo</span>
+                                {% elif 'passport_book' in file %}
+                                <span class="badge bg-warning text-dark">Passport Book</span>
+                                {% elif 'yellow_fever' in file %}
+                                <span class="badge bg-danger">Yellow Fever</span>
+                                {% elif 'Complete' in file %}
+                                <span class="badge bg-success">Complete PDF</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Other</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ MEDIA_URL }}Dubai Details/{{ client.name|slugify }}_{{ client.passport_number }}/{{ file }}"
+                                   class="btn btn-sm btn-outline-primary" 
+                                   target="_blank">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a href="{{ MEDIA_URL }}Dubai Details/{{ client.name|slugify }}_{{ client.passport_number }}/{{ file }}"
+                                   class="btn btn-sm btn-outline-success" 
+                                   download>
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Action Buttons -->
+    <div class="text-center mt-4 mb-5">
+        <div class="btn-group" role="group">
+            <a href="{% url 'upload_documents' client.id %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Upload More Documents
+            </a>
+            <a href="{% url 'download_all' client.id %}" class="btn btn-success">
+                <i class="bi bi-download"></i> Download All PDFs
+            </a>
+            {% if has_comprehensive_pdf %}
+            <a href="{% url 'download_comprehensive_pdf' client.id %}" class="btn btn-info">
+                <i class="bi bi-file-pdf"></i> Download Complete PDF
+            </a>
+            {% endif %}
+            <button type="button" class="btn btn-secondary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Print This Page
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    .table-sm th {
+        font-weight: 600;
+        color: #495057;
+    }
+    .badge {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    .border.rounded {
+        transition: all 0.3s ease;
+    }
+    .border.rounded:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

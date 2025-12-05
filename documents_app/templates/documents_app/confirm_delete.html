@@ -1,0 +1,38 @@
+{% extends "documents_app/base.html" %}
+
+{% block title %}Delete Client{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0 text-center">
+                    <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                </h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="alert alert-danger">
+                    <h5>WARNING: This action cannot be undone!</h5>
+                    <p>You are about to delete:</p>
+                    <h4>{{ client.name }}</h4>
+                    <p>Passport: {{ client.passport_number }}</p>
+                    <p>All documents and folders will be permanently deleted.</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-trash"></i> Yes, Delete Permanently
+                        </button>
+                        <a href="{% url 'client_detail' client.id %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
